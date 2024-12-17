@@ -1,0 +1,255 @@
+-- Таблица 'Guest_booker_info'
+CREATE table guest_booker_info(
+	guest_id SERIAL PRIMARY KEY,
+	first_name varchar (50), 
+	last_name varchar (50), 
+	occupation varchar (50)
+)
+
+
+INSERT INTO guest_booker_info (first_name, last_name, 
+						  occupation) 
+VALUES ('Nurbol', 'Beketov', 'Data Analyst'),
+       ('Igor', 'Rahmanov', 'Marketer'),
+	   ('Asylhan', 'Ibray', 'Waste Manager'),
+	   ('Kabanbay', 'Batyr', 'Warrior'), 
+	   ('Trifon', 'Yusupov', 'Policeman'), 
+	   ('Olga', 'Tarapun', 'Data Analyst')
+
+
+
+
+SELECT * from guest_booker_info;
+
+
+DROP TABLE guest_booker_info
+TRUNCATE TABLE guest_booker_info
+
+
+
+
+-- Таблица 'Booking info'
+CREATE table booking_info(
+	booking_id SERIAL PRIMARY KEY,
+	guest_id INT,
+	check_in_date DATE,
+	check_out_date DATE,
+	amount DECIMAL(7,2),
+	FOREIGN KEY (guest_id) REFERENCES guest_booker_info (guest_id)
+)
+
+
+INSERT INTO booking_info (guest_id, check_in_date, check_out_date, amount) 
+VALUES ('1', '2024-12-23', '2025-01-10','12345.12'),
+	   ('2', '2024-10-11', '2024-10-20', '8889.31'),
+	   ('3',  '2024-09-15', '2024-09-28','1139.11'), 
+	   ('4', '2024-09-10', '2024-09-13','5983.91'), 
+	   ('5',  '2024-07-20', '2024-07-25','7772.51'), 
+	   ('6',  '2024-01-19', '2024-02-11','3220.88')
+
+
+
+SELECT * from booking_info;
+
+
+DROP TABLE booking_info
+TRUNCATE TABLE booking_info
+
+
+-- Таблица 'Registration'
+CREATE TABLE registration(
+	registration_id INT PRIMARY KEY,
+	booking_id INT,
+	room_number INT,
+	actual_check_in_date DATE,
+	check_in_time TIME, 
+	FOREIGN KEY (booking_id) REFERENCES booking_info (booking_id) ON DELETE CASCADE
+
+)
+
+
+INSERT INTO registration (registration_id, booking_id, room_number, 
+						  actual_check_in_date, check_in_time) 
+VALUES ('382093', '2', '122','2024-12-24', '10:15'),
+	   ('384927', '1', '123', '2024-10-11', '23:11'),
+	   ('123458', '3', '137','2024-09-15', '09:05'), 
+	   ('123459', '1', '456','2024-09-10', '12:17'), 
+	   ('123468', '5', '789','2024-07-20', '20:10'), 
+	   ('123258', '6', '101','2024-02-10', '12:24')
+
+
+
+
+SELECT * from registration;
+
+
+DROP TABLE registration
+TRUNCATE TABLE registration
+
+
+-- Таблица 'Departure'
+CREATE TABLE departure(
+	registration_ID INT, 
+	check_out_date DATE,
+	check_out_time TIME,
+	FOREIGN KEY (registration_id) REFERENCES registration (registration_id) ON DELETE CASCADE
+);
+
+
+INSERT INTO departure (registration_id, check_out_date, check_out_time)
+VALUES ('382093', '2024-12-28', '9:15'),
+	   ('384927', '2024-10-17', '6:33'),
+	   ('123458', '2024-09-19', '09:01'), 
+	   ('123459', '2024-09-17', '17:18'), 
+	   ('123468', '2024-07-23', '22:10'), 
+	   ('123258', '2024-02-13', '17:58')
+
+
+
+SELECT * FROM departure;
+
+
+DROP TABLE departure
+TRUNCATE TABLE departure
+
+-- Таблица 'Room_type_id'
+CREATE table room_type_id(
+	room_type_id SERIAL PRIMARY KEY,
+	room_type VARCHAR (20)
+
+)
+
+INSERT INTO room_type_id (room_type) 
+VALUES ('Standard'),
+	   ('Deluxe'),
+	   ('Suite')
+
+SELECT * from room_type_id;
+
+
+DROP TABLE room_type_id
+TRUNCATE TABLE room_type_id
+
+-- Таблица 'Booking Room'
+
+CREATE table bookingroom(
+	booking_room_id SERIAL, 
+	booking_id INT,
+	room_type_id INT,
+	FOREIGN KEY (booking_id) REFERENCES booking_info (booking_id) ON DELETE CASCADE,
+	FOREIGN KEY (room_type_id) REFERENCES room_type_id (room_type_id) ON DELETE CASCADE
+);
+
+	   
+INSERT INTO bookingroom (booking_id, room_type_id)
+VALUES ('1', '2'),
+	   ('1', '3'),
+	   ('2', '3'),
+	   ('3', '1'),
+	   ('4', '1'),
+	   ('5', '3'), 
+	   ('6', '3')
+
+
+
+
+SELECT * from bookingroom;
+
+
+DROP TABLE bookingroom
+TRUNCATE TABLE bookingroom
+
+
+
+
+
+-- Таблица 'Room info'
+
+CREATE table room_info(
+	room_number INT PRIMARY KEY,
+	room_type_id int,
+	room_name VARCHAR (100),
+	capacity INT,
+	price_day DECIMAL (7,2),
+	floor_num INT,
+	free_wifi boolean,
+	smoking_allowed boolean,
+	pets_allowed boolean, 
+	FOREIGN KEY (room_type_id) REFERENCES room_type_id (room_type_id) ON DELETE CASCADE
+)
+
+INSERT INTO room_info (room_number, room_type_id, room_name, capacity, price_day,
+				       floor_num, free_wifi, smoking_allowed, pets_allowed) 
+VALUES ('123', '2', 'Wonderful Garden', '4', '1038', '2', TRUE, FALSE, TRUE), 
+	   ('456', '3', 'Mysterious Room', '2', '2000', '5', TRUE, TRUE, FALSE),
+	   ('789', '3', 'Cosy corner', '2', '450', '5', TRUE, FALSE, TRUE),
+	   ('101', '1', NULL, '2', '150', '4', FALSE, TRUE, FALSE),
+	   ('122', '1', NULL, '1', '170','5', FALSE, FALSE, FALSE),
+	   ('137', '3', 'Great View', '6', '821', '8', TRUE, TRUE, TRUE)
+
+SELECT * FROM room_info
+
+
+DROP TABLE room_info
+TRUNCATE TABLE room_info
+
+
+-- Таблица 'Payment info'
+CREATE table payment_info(
+	room_number INT,
+	prepayment_needed boolean,
+	cancellation_fee DECIMAL (7,2), 
+	FOREIGN KEY (room_number) REFERENCES room_info (room_number) ON DELETE CASCADE
+
+)
+
+INSERT INTO payment_info (room_number, prepayment_needed, cancellation_fee) 
+VALUES ('123', TRUE, 500.80),
+	   ('456', TRUE, 1500.50),
+	   ('789', TRUE, 900.15),
+	   ('101', FALSE, 850.40),
+	   ('122', FALSE, 500.50),
+	   ('137', TRUE, 2000.50)
+	   
+
+
+SELECT * from payment_info;
+
+
+DROP TABLE payment_info
+TRUNCATE TABLE payment_info
+
+
+
+-- Вывести имя клиента, у которого сумма к оплате ниже, чем у остальных клиентов,
+-- но эта сумма выше максимальной цены проживания за день. 
+-- При этом максимальная цена выбирается из комнат всех этажей, кроме первого.
+
+SELECT gbooker.first_name, MIN (booki.amount) as min_amount_paid
+FROM 
+    guest_booker_info gbooker
+    INNER JOIN booking_info booki USING (guest_id)
+    INNER JOIN bookingroom bookir USING (booking_id)
+	INNER JOIN room_type_id roomtid USING (room_type_id)
+	INNER JOIN room_info roomi USING (room_type_id)
+GROUP BY gbooker.first_name
+HAVING MIN(booki.amount) <= 
+     (SELECT MAX (price_day) AS price_day_max
+      FROM room_info
+	  WHERE floor_num <> 1
+		 )
+
+
+
+-- Вывести номер комнаты, цена которой выше или равна средней плате за отмену бронирования.
+
+SELECT roomi.room_number, roomi.price_day
+FROM room_info roomi  
+	INNER JOIN payment_info USING (room_number)
+GROUP BY roomi.room_number
+HAVING roomi.price_day >= 
+	  (SELECT AVG(cancellation_fee)
+	  FROM payment_info)
+		 
+          
+ 
